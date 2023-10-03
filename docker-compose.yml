@@ -1,0 +1,49 @@
+version: '3.9'
+services:
+  # agent:
+  #   image: agent
+  #   build:
+  #     dockerfile: ./agent_dockerfile
+  #     context: .
+  #   privileged: true
+  #   user: root
+  #   container_name: agent
+  #   expose:
+  #     - 22
+  #   environment:
+  #     - JENKINS_AGENT_SSH_PUBKEY=${JENKINS_AGENT_SSH_PUBKEY}
+  #   volumes:
+  #     - ./jobs:/jobs
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   #  - .ssh/id_rsa.pub:/root/.ssh/id_rsa.pub
+
+  jenkins:
+    image: jenkins
+    build:
+      dockerfile: ./Dockerfile
+      context: .
+    privileged: true
+    user: root
+    ports:
+      - 8080:8080
+      - 50000:50000
+    container_name: jenkins
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      #- ./jobs:/var/jenkins_home/init.groovy.d
+      - ./jobs:/jobs
+      #- ./ssh/:/root/.ssh/
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      #- CASC_JENKINS_CONFIG=/var/jenkins_home/jenkins.yaml
+      - JENKINS_ADMIN_ID=admin
+      - JENKINS_ADMIN_PASSWORD=admin
+      #- SSH_KEY_PASSWORD=${SSH_KEY_PASSWORD}
+      #- SSH_PRIVATE_FILE_PATH=${SSH_PRIVATE_FILE_PATH}
+      #- JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+      #- DOCKER_HOST=unix:///var/run/docker.sock
+      #- JENKINS_OPTS="--argumentsRealm.roles.user=admin --argumentsRealm.passwd.admin=admin@zxcV --argumentsRealm.roles.admin=admin"
+      #- JENKINS_USER=admin
+      #- JENKINS_PASS=admin
+volumes:
+  jenkins_home:

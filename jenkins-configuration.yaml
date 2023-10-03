@@ -1,0 +1,76 @@
+jenkins:
+  numExecutors: 0
+
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: ${JENKINS_ADMIN_ID}
+          password: ${JENKINS_ADMIN_PASSWORD}
+
+  authorizationStrategy:
+    globalMatrix:
+      permissions:
+        - "GROUP:Overall/Administer:authenticated"
+        - "GROUP:Overall/Read:authenticated"
+
+  # nodes:
+  #   - permanent:
+  #       labelString: "Slave 01"
+  #       mode: NORMAL
+  #       name: "slave-01"
+  #       numExecutors: 4
+  #       remoteFS: "/home/jenkins"
+  #       launcher:
+  #         ssh:
+  #           host: "agent"
+  #           port: 22
+  #           credentialsId: ssh_slave-01
+  #           launchTimeoutSeconds: 60
+  #           maxNumRetries: 3
+  #           retryWaitTime: 30
+  #           sshHostKeyVerificationStrategy:
+  #             manuallyTrustedKeyVerificationStrategy:
+  #               requireInitialManualTrust: false
+  
+  clouds:
+  - docker:
+      dockerApi:
+        dockerHost:
+          uri: "unix:///var/run/docker.sock"
+      name: "docker"
+      templates:
+      - connector:
+          attach:
+            user: "root"
+        dockerTemplateBase:
+          cpuPeriod: 0
+          cpuQuota: 0
+          image: "kalilinux"
+        instanceCapStr: "10"
+        labelString: "kali"
+        pullStrategy: PULL_NEVER
+        remoteFs: "/root"
+        retentionStrategy:
+          idleMinutes: 1
+
+unclassified:
+  location:
+    url: http://localhost:8080/
+
+# credentials:
+#   system:
+#     domainCredentials:
+#       - credentials:
+#           - basicSSHUserPrivateKey:
+#               scope: SYSTEM
+#               id: ssh_slave-01
+#               username: jenkins
+#               passphrase: "${SSH_KEY_PASSWORD}"
+#               description: "SSH Slave 01"
+#               privateKeySource:
+#                 directEntry:
+#                   privateKey: "${readFile:${SSH_PRIVATE_FILE_PATH}}"
+
+jobs:
+  - file: /jobs/nmap.groovy
